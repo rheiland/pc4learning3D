@@ -29,7 +29,7 @@
 	</parallel> 
 	
 	<save>
-		<folder>.</folder>  
+		<folder>output</folder>  
 
 		<full_data>
 			<interval units="min">60</interval>
@@ -205,7 +205,7 @@
         </custom_data>
           </cell_definition>
 
-      <cell_definition name="immune cell" ID="1">
+      <cell_definition name="immune" ID="0">
         <phenotype>
           <cycle code="5" name="live">
             <phase_transition_rates units="1/min">
@@ -314,9 +314,9 @@
       </cell_definitions>
 
     <initial_conditions>
-		<cell_positions type="csv" enabled="false">
+		<cell_positions type="csv" enabled="true">
 			<folder />
-			<filename>cell.csv</filename>
+			<filename>celltypes3_cells.csv</filename>
 		</cell_positions>
 	</initial_conditions>		
 	

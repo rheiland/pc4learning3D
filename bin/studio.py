@@ -88,7 +88,8 @@ class PhysiCellXMLCreator(QWidget):
         # GUI tabs
 
         # model_name = "PhysiCell_settings"
-        model_name = "PhysiCell_settings_default_cell_only"
+        # model_name = "PhysiCell_settings_default_cell_only"
+        model_name = "PhysiCell_settings"
 
         # binDirectory = os.path.realpath(os.path.abspath(__file__))
         binDirectory = os.path.dirname(os.path.abspath(__file__))
