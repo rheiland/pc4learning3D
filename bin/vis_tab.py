@@ -854,7 +854,8 @@ class Vis(QWidget):
                 # print("type(s)=",type(s))
                 if (s[0:3] == "rgb"):  # if an rgb string, e.g. "rgb(175,175,80)" 
                     rgb = list(map(int, s[4:-1].split(",")))  
-                    rgb[:] = [x / 255. for x in rgb]
+                    # rgb[:] = [x / 255. for x in rgb]
+                    rgb[:] = [min(x/255.0, 1.0) for x in rgb]
                 else:     # otherwise, must be a color name
                     rgb_tuple = mplc.to_rgb(mplc.cnames[s])  # a tuple
                     rgb = [x for x in rgb_tuple]
