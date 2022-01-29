@@ -1,12 +1,12 @@
-# pc4cells_near_membrane
+# pc4learning3D
 
-Experimental PhysiCell model for testing cell mechanics near a "membrane" (in this case, the x-axis (y=0)).
+PhysiCell Studio for testing cell a 3D model (the 3D cancer immune sample model bundled with PhysiCell). Note that on the "Config Basics" tab, there is a "3D model" checkbox that is checked, but disabled. This means that this Studio GUI will *only* generate a 3D model in the .xml.
 
 Compile, copy the executable to the root directory, run the GUI:
 ```
-cd pc4cells_near_membrane/src
+cd pc4learning3D/src
 make
-cp mymodel ..
+cp cancer_immune_3D ..
 cd ..
 python bin/studio.py
 ```
