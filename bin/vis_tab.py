@@ -6,14 +6,16 @@ from pathlib import Path
 # from ipywidgets import Layout, Label, Text, Checkbox, Button, BoundedIntText, HBox, VBox, Box, \
     # FloatText, Dropdown, SelectMultiple, RadioButtons, interactive
 # import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm
-from matplotlib.ticker import MaxNLocator
-from matplotlib.collections import LineCollection
-from matplotlib.patches import Circle, Ellipse, Rectangle
-from matplotlib.collections import PatchCollection
-import matplotlib.colors as mplc
-from matplotlib import gridspec
-from collections import deque
+# from matplotlib.colors import BoundaryNorm
+# from matplotlib.ticker import MaxNLocator
+# from matplotlib.collections import LineCollection
+# from matplotlib.patches import Circle, Ellipse, Rectangle
+# from matplotlib.collections import PatchCollection
+# import matplotlib.colors as mplc
+# from matplotlib import gridspec
+import vtk
+from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+# from collections import deque
 import glob
 
 from PyQt5 import QtCore, QtGui
@@ -21,14 +23,15 @@ from PyQt5.QtWidgets import QFrame,QApplication,QWidget,QTabWidget,QFormLayout,Q
 
 import numpy as np
 import scipy.io
-import matplotlib
-matplotlib.use('Qt5Agg')
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+# import matplotlib
+# matplotlib.use('Qt5Agg')
+# import matplotlib.pyplot as plt
+#from QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+# from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # from PyQt5 import QtCore, QtWidgets
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+# from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 # from matplotlib.figure import Figure
 
 class Vis(QWidget):
@@ -321,14 +324,15 @@ class Vis(QWidget):
         self.update_plots()
 
     def update_plots(self):
-        self.ax0.cla()
-        if self.substrates_checked_flag:
-            self.plot_substrate(self.current_svg_frame)
-        if self.cells_checked_flag:
-            self.plot_svg(self.current_svg_frame)
+        # self.ax0.cla()
+        # if self.substrates_checked_flag:
+        #     self.plot_substrate(self.current_svg_frame)
+        # if self.cells_checked_flag:
+        #     self.plot_svg(self.current_svg_frame)
 
-        self.canvas.update()
-        self.canvas.draw()
+        # self.canvas.update()
+        # self.canvas.draw()
+        return
 
     def fill_substrates_combobox(self, substrate_list):
         print("vis_tab.py: ------- fill_substrates_combobox")
@@ -609,15 +613,51 @@ class Vis(QWidget):
 
     def create_figure(self):
         print("\n--------- create_figure(): ------- creating figure, canvas, ax0")
-        self.figure = plt.figure()
-        self.canvas = FigureCanvasQTAgg(self.figure)
-        self.canvas.setStyleSheet("background-color:transparent;")
+        self.canvas = QWidget()
+        self.vl = QVBoxLayout(self.canvas)
+        # self.setCentralWidget(self.canvas)
+        # self.resize(640, 480)
+
+        self.ren = vtk.vtkRenderer()
+        # vtk_widget = QVTKRenderWindowInteractor(rw=render_window)
+        # self.vtkWidget = QVTKRenderWindowInteractor(self.ren)
+        self.vtkWidget = QVTKRenderWindowInteractor(self.canvas)
+        self.vl.addWidget(self.vtkWidget)
+        # self.vtkWidget.Initialize()
+        # self.vtkWidget.Start()
+
+        self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
+        self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
+
+        # Create source
+        source = vtk.vtkSphereSource()
+        source.SetCenter(0, 0, 0)
+        source.SetRadius(5.0)
+
+        # Create a mapper
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(source.GetOutputPort())
+
+        # Create an actor
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        self.ren.AddActor(actor)
+        self.ren.ResetCamera()
+        # self.frame.setLayout(self.vl)
+        # self.setCentralWidget(self.frame)
+        self.show()
+        self.iren.Initialize()
+        self.iren.Start()
+
+        # self.figure = plt.figure()
+        # self.canvas = FigureCanvasQTAgg(self.figure)
+        # self.canvas.setStyleSheet("background-color:transparent;")
 
         # Adding one subplot for image
         # self.ax0 = self.figure.add_subplot(111)
         # self.ax0 = self.figure.add_subplot(111, adjustable='box', aspect=1.2)
         # self.ax0 = self.figure.add_subplot(111, adjustable='box', aspect=self.aspect_ratio)
-        self.ax0 = self.figure.add_subplot(111, adjustable='box')
+        # self.ax0 = self.figure.add_subplot(111, adjustable='box')
         
         # self.ax0.get_xaxis().set_visible(False)
         # self.ax0.get_yaxis().set_visible(False)
@@ -639,467 +679,44 @@ class Vis(QWidget):
         # else:
         #     self.plot_substrate(self.current_svg_frame)
 
-        print("create_figure(): ------- creating dummy contourf")
-        xlist = np.linspace(-3.0, 3.0, 50)
-        print("len(xlist)=",len(xlist))
-        ylist = np.linspace(-3.0, 3.0, 50)
-        X, Y = np.meshgrid(xlist, ylist)
-        Z = np.sqrt(X**2 + Y**2) + 10*np.random.rand()
+        # print("create_figure(): ------- creating dummy contourf")
+        # xlist = np.linspace(-3.0, 3.0, 50)
+        # print("len(xlist)=",len(xlist))
+        # ylist = np.linspace(-3.0, 3.0, 50)
+        # X, Y = np.meshgrid(xlist, ylist)
+        # Z = np.sqrt(X**2 + Y**2) + 10*np.random.rand()
 
-        self.cmap = plt.cm.get_cmap("viridis")
-        self.mysubstrate = self.ax0.contourf(X, Y, Z, cmap=self.cmap)
-        # if self.field_index > 4:
-        #     # plt.contour(xgrid, ygrid, M[self.field_index, :].reshape(self.numy,self.numx), [0.0])
-        #     plt.contour(X, Y, Z, [0.0])
+        # self.cmap = plt.cm.get_cmap("viridis")
+        # self.mysubstrate = self.ax0.contourf(X, Y, Z, cmap=self.cmap)
+        # # if self.field_index > 4:
+        # #     # plt.contour(xgrid, ygrid, M[self.field_index, :].reshape(self.numy,self.numx), [0.0])
+        # #     plt.contour(X, Y, Z, [0.0])
 
-        self.cbar = self.figure.colorbar(self.mysubstrate, ax=self.ax0)
-        self.cbar.ax.tick_params(labelsize=self.fontsize)
+        # self.cbar = self.figure.colorbar(self.mysubstrate, ax=self.ax0)
+        # self.cbar.ax.tick_params(labelsize=self.fontsize)
 
-        # substrate_plot = self.ax0.contourf(xgrid, ygrid, M[self.field_index, :].reshape(self.numy,self.numx), num_contours, cmap='viridis')  # self.colormap_dd.value)
+        # # substrate_plot = self.ax0.contourf(xgrid, ygrid, M[self.field_index, :].reshape(self.numy,self.numx), num_contours, cmap='viridis')  # self.colormap_dd.value)
 
-        print("------------create_figure():  # axes = ",len(self.figure.axes))
+        # print("------------create_figure():  # axes = ",len(self.figure.axes))
 
-        # self.imageInit = [[255] * 320 for i in range(240)]
-        # self.imageInit[0][0] = 0
+        # # self.imageInit = [[255] * 320 for i in range(240)]
+        # # self.imageInit[0][0] = 0
 
-        # Init image and add colorbar
-        # self.image = self.ax0.imshow(self.imageInit, interpolation='none')
-        # divider = make_axes_locatable(self.ax0)
-        # cax = divider.new_vertical(size="5%", pad=0.05, pack_start=True)
-        # self.colorbar = self.figure.add_axes(cax)
-        # self.figure.colorbar(self.image, cax=cax, orientation='horizontal')
+        # # Init image and add colorbar
+        # # self.image = self.ax0.imshow(self.imageInit, interpolation='none')
+        # # divider = make_axes_locatable(self.ax0)
+        # # cax = divider.new_vertical(size="5%", pad=0.05, pack_start=True)
+        # # self.colorbar = self.figure.add_axes(cax)
+        # # self.figure.colorbar(self.image, cax=cax, orientation='horizontal')
 
-        # plt.subplots_adjust(left=0, bottom=0.05, right=1, top=1, wspace=0, hspace=0)
+        # # plt.subplots_adjust(left=0, bottom=0.05, right=1, top=1, wspace=0, hspace=0)
 
-        self.plot_substrate(self.current_svg_frame)
-        self.plot_svg(self.current_svg_frame)
-        # self.canvas.draw()
-
-    #---------------------------------------------------------------------------
-    def circles(self, x, y, s, c='b', vmin=None, vmax=None, **kwargs):
-        """
-        See https://gist.github.com/syrte/592a062c562cd2a98a83 
-
-        Make a scatter plot of circles. 
-        Similar to plt.scatter, but the size of circles are in data scale.
-        Parameters
-        ----------
-        x, y : scalar or array_like, shape (n, )
-            Input data
-        s : scalar or array_like, shape (n, ) 
-            Radius of circles.
-        c : color or sequence of color, optional, default : 'b'
-            `c` can be a single color format string, or a sequence of color
-            specifications of length `N`, or a sequence of `N` numbers to be
-            mapped to colors using the `cmap` and `norm` specified via kwargs.
-            Note that `c` should not be a single numeric RGB or RGBA sequence 
-            because that is indistinguishable from an array of values
-            to be colormapped. (If you insist, use `color` instead.)  
-            `c` can be a 2-D array in which the rows are RGB or RGBA, however. 
-        vmin, vmax : scalar, optional, default: None
-            `vmin` and `vmax` are used in conjunction with `norm` to normalize
-            luminance data.  If either are `None`, the min and max of the
-            color array is used.
-        kwargs : `~matplotlib.collections.Collection` properties
-            Eg. alpha, edgecolor(ec), facecolor(fc), linewidth(lw), linestyle(ls), 
-            norm, cmap, transform, etc.
-        Returns
-        -------
-        paths : `~matplotlib.collections.PathCollection`
-        Examples
-        --------
-        a = np.arange(11)
-        circles(a, a, s=a*0.2, c=a, alpha=0.5, ec='none')
-        plt.colorbar()
-        License
-        --------
-        This code is under [The BSD 3-Clause License]
-        (http://opensource.org/licenses/BSD-3-Clause)
-        """
-
-        if np.isscalar(c):
-            kwargs.setdefault('color', c)
-            c = None
-
-        if 'fc' in kwargs:
-            kwargs.setdefault('facecolor', kwargs.pop('fc'))
-        if 'ec' in kwargs:
-            kwargs.setdefault('edgecolor', kwargs.pop('ec'))
-        if 'ls' in kwargs:
-            kwargs.setdefault('linestyle', kwargs.pop('ls'))
-        if 'lw' in kwargs:
-            kwargs.setdefault('linewidth', kwargs.pop('lw'))
-        # You can set `facecolor` with an array for each patch,
-        # while you can only set `facecolors` with a value for all.
-
-        zipped = np.broadcast(x, y, s)
-        patches = [Circle((x_, y_), s_)
-                for x_, y_, s_ in zipped]
-        collection = PatchCollection(patches, **kwargs)
-        if c is not None:
-            c = np.broadcast_to(c, zipped.shape).ravel()
-            collection.set_array(c)
-            collection.set_clim(vmin, vmax)
-
-        # ax = plt.gca()
-        # ax.add_collection(collection)
-        # ax.autoscale_view()
-        self.ax0.add_collection(collection)
-        self.ax0.autoscale_view()
-        # plt.draw_if_interactive()
-        if c is not None:
-            # plt.sci(collection)
-            self.ax0.sci(collection)
-        # return collection
+        # # self.plot_substrate(self.current_svg_frame)
+        # # self.plot_svg(self.current_svg_frame)
+        self.plot_cells3D(self.current_svg_frame)
+        # # self.canvas.draw()
 
     #------------------------------------------------------------
     # def plot_svg(self, frame, rdel=''):
-    def plot_svg(self, frame):
-        # global current_idx, axes_max
-        global current_frame
-
-        # return
-
-        current_frame = frame
-        fname = "snapshot%08d.svg" % frame
-        full_fname = os.path.join(self.output_dir, fname)
-        # print("   ==>>>>> plot_svg(): full_fname=",full_fname)
-        # with debug_view:
-            # print("plot_svg:", full_fname) 
-        # print("-- plot_svg:", full_fname) 
-        if not os.path.isfile(full_fname):
-            # print("Once output files are generated, click the slider.")   
-            print("ERROR:  filename not found.")   
-            return
-
-        # self.ax0.cla()
-        self.title_str = ""
-
-# https://stackoverflow.com/questions/5263034/remove-colorbar-from-figure-in-matplotlib
-# def foo(self):
-#    self.subplot.clear()
-#    hb = self.subplot.hexbin(...)
-#    if self.cb:
-#       self.figure.delaxes(self.figure.axes[1])
-#       self.figure.subplots_adjust(right=0.90)  #default right padding
-#    self.cb = self.figure.colorbar(hb)
-
-        # if self.cbar:
-            # self.cbar.remove()
-
-        xlist = deque()
-        ylist = deque()
-        rlist = deque()
-        rgb_list = deque()
-
-        #  print('\n---- ' + fname + ':')
-#        tree = ET.parse(fname)
-        tree = ET.parse(full_fname)
-        root = tree.getroot()
-        #  print('--- root.tag ---')
-        #  print(root.tag)
-        #  print('--- root.attrib ---')
-        #  print(root.attrib)
-        #  print('--- child.tag, child.attrib ---')
-        numChildren = 0
-        for child in root:
-            #    print(child.tag, child.attrib)
-            #    print("keys=",child.attrib.keys())
-            # if self.use_defaults and ('width' in child.attrib.keys()):
-            #     self.axes_max = float(child.attrib['width'])
-                # print("debug> found width --> axes_max =", axes_max)
-            if child.text and "Current time" in child.text:
-                svals = child.text.split()
-                # remove the ".00" on minutes
-                self.title_str += "   cells: " + svals[2] + "d, " + svals[4] + "h, " + svals[7][:-3] + "m"
-
-                # self.cell_time_mins = int(svals[2])*1440 + int(svals[4])*60 + int(svals[7][:-3])
-                # self.title_str += "   cells: " + str(self.cell_time_mins) + "m"   # rwh
-
-            # print("width ",child.attrib['width'])
-            # print('attrib=',child.attrib)
-            # if (child.attrib['id'] == 'tissue'):
-            if ('id' in child.attrib.keys()):
-                # print('-------- found tissue!!')
-                tissue_parent = child
-                break
-
-        # print('------ search tissue')
-        cells_parent = None
-
-        for child in tissue_parent:
-            # print('attrib=',child.attrib)
-            if (child.attrib['id'] == 'cells'):
-                # print('-------- found cells, setting cells_parent')
-                cells_parent = child
-                break
-            numChildren += 1
-
-        num_cells = 0
-        #  print('------ search cells')
-        for child in cells_parent:
-            #    print(child.tag, child.attrib)
-            #    print('attrib=',child.attrib)
-            for circle in child:  # two circles in each child: outer + nucleus
-                #  circle.attrib={'cx': '1085.59','cy': '1225.24','fill': 'rgb(159,159,96)','r': '6.67717','stroke': 'rgb(159,159,96)','stroke-width': '0.5'}
-                #      print('  --- cx,cy=',circle.attrib['cx'],circle.attrib['cy'])
-                xval = float(circle.attrib['cx'])
-
-                # map SVG coords into comp domain
-                # xval = (xval-self.svg_xmin)/self.svg_xrange * self.x_range + self.xmin
-                xval = xval/self.x_range * self.x_range + self.xmin
-
-                s = circle.attrib['fill']
-                # print("s=",s)
-                # print("type(s)=",type(s))
-                if (s[0:3] == "rgb"):  # if an rgb string, e.g. "rgb(175,175,80)" 
-                    rgb = list(map(int, s[4:-1].split(",")))  
-                    # rgb[:] = [x / 255. for x in rgb]
-                    rgb[:] = [min(x/255.0, 1.0) for x in rgb]
-                else:     # otherwise, must be a color name
-                    rgb_tuple = mplc.to_rgb(mplc.cnames[s])  # a tuple
-                    rgb = [x for x in rgb_tuple]
-
-                # test for bogus x,y locations (rwh TODO: use max of domain?)
-                too_large_val = 10000.
-                if (np.fabs(xval) > too_large_val):
-                    print("bogus xval=", xval)
-                    break
-                yval = float(circle.attrib['cy'])
-                # yval = (yval - self.svg_xmin)/self.svg_xrange * self.y_range + self.ymin
-                yval = yval/self.y_range * self.y_range + self.ymin
-                if (np.fabs(yval) > too_large_val):
-                    print("bogus xval=", xval)
-                    break
-
-                rval = float(circle.attrib['r'])
-                # if (rgb[0] > rgb[1]):
-                #     print(num_cells,rgb, rval)
-                xlist.append(xval)
-                ylist.append(yval)
-                rlist.append(rval)
-                rgb_list.append(rgb)
-
-                # For .svg files with cells that *have* a nucleus, there will be a 2nd
-                if (not self.show_nucleus):
-                #if (not self.show_nucleus):
-                    break
-
-            num_cells += 1
-
-            # if num_cells > 3:   # for debugging
-            #   print(fname,':  num_cells= ',num_cells," --- debug exit.")
-            #   sys.exit(1)
-            #   break
-
-            # print(fname,':  num_cells= ',num_cells)
-
-        xvals = np.array(xlist)
-        yvals = np.array(ylist)
-        rvals = np.array(rlist)
-        rgbs = np.array(rgb_list)
-        # print("xvals[0:5]=",xvals[0:5])
-        # print("rvals[0:5]=",rvals[0:5])
-        # print("rvals.min, max=",rvals.min(),rvals.max())
-
-        # rwh - is this where I change size of render window?? (YES - yipeee!)
-        #   plt.figure(figsize=(6, 6))
-        #   plt.cla()
-        # if (self.substrates_toggle.value):
-        self.title_str += " (" + str(num_cells) + " agents)"
-            # title_str = " (" + str(num_cells) + " agents)"
-        # else:
-            # mins= round(int(float(root.find(".//current_time").text)))  # TODO: check units = mins
-            # hrs = int(mins/60)
-            # days = int(hrs/24)
-            # title_str = '%dd, %dh, %dm' % (int(days),(hrs%24), mins - (hrs*60))
-        # plt.title(self.title_str)
-        self.ax0.set_title(self.title_str, fontsize=5)
-        # self.ax0.set_title(self.title_str, prop={'size':'small'})
-
-        # plt.xlim(self.xmin, self.xmax)
-        # plt.ylim(self.ymin, self.ymax)
-
-        # set xrange & yrange of plots
-        self.ax0.set_xlim(self.plot_xmin, self.plot_xmax)
-        # self.ax0.set_xlim(-450, self.xmax)
-
-        self.ax0.set_ylim(self.plot_ymin, self.plot_ymax)
-        # self.ax0.set_ylim(0.0, self.ymax)
-        self.ax0.tick_params(labelsize=4)
-
-        # self.ax0.colorbar(collection)
-
-        #   plt.xlim(axes_min,axes_max)
-        #   plt.ylim(axes_min,axes_max)
-        #   plt.scatter(xvals,yvals, s=rvals*scale_radius, c=rgbs)
-
-        # TODO: make figsize a function of plot_size? What about non-square plots?
-        # self.fig = plt.figure(figsize=(9, 9))
-
-#        axx = plt.axes([0, 0.05, 0.9, 0.9])  # left, bottom, width, height
-#        axx = fig.gca()
-#        print('fig.dpi=',fig.dpi) # = 72
-
-        #   im = ax.imshow(f.reshape(100,100), interpolation='nearest', cmap=cmap, extent=[0,20, 0,20])
-        #   ax.xlim(axes_min,axes_max)
-        #   ax.ylim(axes_min,axes_max)
-
-        # convert radii to radii in pixels
-        # ax1 = self.fig.gca()
-        # N = len(xvals)
-        # rr_pix = (ax1.transData.transform(np.vstack([rvals, rvals]).T) -
-        #             ax1.transData.transform(np.vstack([np.zeros(N), np.zeros(N)]).T))
-        # rpix, _ = rr_pix.T
-
-        # markers_size = (144. * rpix / self.fig.dpi)**2   # = (2*rpix / fig.dpi * 72)**2
-        # markers_size = markers_size/4000000.
-        # print('max=',markers_size.max())
-
-        #rwh - temp fix - Ah, error only occurs when "edges" is toggled on
-        if (self.show_edge):
-            try:
-                # plt.scatter(xvals,yvals, s=markers_size, c=rgbs, edgecolor='black', linewidth=0.5)
-                self.circles(xvals,yvals, s=rvals, color=rgbs, alpha=self.alpha, edgecolor='black', linewidth=0.5)
-                # cell_circles = self.circles(xvals,yvals, s=rvals, color=rgbs, edgecolor='black', linewidth=0.5)
-                # plt.sci(cell_circles)
-            except (ValueError):
-                pass
-        else:
-            # plt.scatter(xvals,yvals, s=markers_size, c=rgbs)
-            self.circles(xvals,yvals, s=rvals, color=rgbs, alpha=self.alpha)
-
-
-    #------------------------------------------------------------
-    def plot_substrate(self, frame):
-        # global current_idx, axes_max
-        global current_frame
-
-        xml_file_root = "output%08d.xml" % frame
-        xml_file = os.path.join(self.output_dir, xml_file_root)
-        if not Path(xml_file).is_file():
-            print("ERROR: file not found",xml_file)
-            return
-
-        # xml_file = os.path.join(self.output_dir, xml_file_root)
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
-    #    print('time=' + root.find(".//current_time").text)
-        mins = float(root.find(".//current_time").text)
-        hrs = int(mins/60)
-        days = int(hrs/24)
-        self.title_str = '%d days, %d hrs, %d mins' % (days,hrs-days*24, mins-hrs*60)
-        print(self.title_str)
-
-        fname = "output%08d_microenvironment0.mat" % frame
-        full_fname = os.path.join(self.output_dir, fname)
-        print("\n    ==>>>>> plot_substrate(): full_fname=",full_fname)
-        if not Path(full_fname).is_file():
-            print("ERROR: file not found",full_fname)
-            return
-
-        info_dict = {}
-        scipy.io.loadmat(full_fname, info_dict)
-        M = info_dict['multiscale_microenvironment']
-        print('plot_substrate: self.field_index=',self.field_index)
-
-        # debug
-        # fsub = M[self.field_index,:]   # 
-        # print("substrate min,max=",fsub.min(), fsub.max())
-
-        print("M.shape = ",M.shape)  # e.g.,  (6, 421875)  (where 421875=75*75*75)
-        # numx = int(M.shape[1] ** (1./3) + 1)
-        # numy = numx
-        # self.numx = 50  # for template model
-        # self.numy = 50
-        # self.numx = 88  # for kidney model
-        # self.numy = 75
-        print("self.numx, self.numy = ",self.numx, self.numy )
-        # nxny = numx * numy
-
-        xgrid = M[0, :].reshape(self.numy, self.numx)
-        ygrid = M[1, :].reshape(self.numy, self.numx)
-
-        zvals = M[self.field_index,:].reshape(self.numy,self.numx)
-        print("zvals.min() = ",zvals.min())
-        print("zvals.max() = ",zvals.max())
-
-        # self.num_contours = 15
-
-        # if (self.colormap_fixed_toggle.value):
-        #     try:
-        #         # vmin = 0
-        #         # vmax = 10
-        #         # levels = MaxNLocator(nbins=30).tick_values(vmin, vmax)
-        #         num_contours = 15
-        #         levels = MaxNLocator(nbins=num_contours).tick_values(self.colormap_min.value, self.colormap_max.value)
-        #         substrate_plot = self.ax0.contourf(xgrid, ygrid, M[self.field_index, :].reshape(self.numy, self.numx), levels=levels, extend='both', cmap=self.colormap_dd.value, fontsize=self.fontsize)
-        #     except:
-        #         contour_ok = False
-        #         # print('got error on contourf 1.')
-        # else:    
-        #     try:
-        #         substrate_plot = self.ax0.contourf(xgrid, ygrid, M[self.field_index, :].reshape(self.numy,self.numx), num_contours, cmap=self.colormap_dd.value)
-        #     except:
-        #         contour_ok = False
-        #             # print('got error on contourf 2.')
-
-        contour_ok = True
-        # if (self.colormap_fixed_toggle.value):
-        # self.field_index = 4
-        substrate_plot = self.ax0.contourf(xgrid, ygrid, zvals, self.num_contours, cmap='viridis')  # self.colormap_dd.value)
-        if self.field_index > 4:
-            self.ax0.contour(xgrid, ygrid, M[self.field_index, :].reshape(self.numy,self.numx), [0.0], linewidths=0.5)
-
-        print("# axes = ",len(self.figure.axes))
-        if len(self.figure.axes) > 1: 
-            pts = self.figure.axes[-1].get_position().get_points()
-            label = self.figure.axes[-1].get_ylabel()
-            self.figure.axes[-1].remove()  # replace/update the colorbar
-            cax = self.figure.add_axes([pts[0][0],pts[0][1],pts[1][0]-pts[0][0],pts[1][1]-pts[0][1]  ])
-            self.cbar = self.figure.colorbar(substrate_plot, cax=cax)
-            self.cbar.ax.set_ylabel(label)
-            self.cbar.ax.tick_params(labelsize=self.fontsize)
-
-            # unfortunately the aspect is different between the initial call to colorbar 
-            #   without cax argument. Try to reset it (but still it's somehow different)
-            self.cbar.ax.set_aspect(20)
-        else:
-            # plt.colorbar(im)
-            self.figure.colorbar(substrate_plot)
-
-        # if (False):
-        #     try:
-        #         substrate_plot = self.ax0.contourf(xgrid, ygrid, M[self.field_index, :].reshape(self.numy, self.numx), levels=levels, extend='both', cmap=self.colormap_dd.value, fontsize=self.fontsize)
-        #     except:
-        #         contour_ok = False
-        #         print('---------got error on contourf 1.')
-        # else:    
-        #     try:
-        #         substrate_plot = self.ax0.contourf(xgrid, ygrid, M[self.field_index, :].reshape(self.numy,self.numx), num_contours, cmap='viridis')  # self.colormap_dd.value)
-        #     except:
-        #         contour_ok = False
-        #         print('---------got error on contourf 2.')
-
-        self.ax0.set_title(self.title_str, fontsize=self.fontsize)
-
-        # if (contour_ok):
-        # if (True):
-        #     self.fontsize = 20
-        #     self.ax0.set_title(self.title_str, fontsize=self.fontsize)
-        #     cbar = self.figure.colorbar(substrate_plot, ax=self.ax0)
-        #     cbar.ax.tick_params(labelsize=self.fontsize)
-
-        self.ax0.set_xlim(self.plot_xmin, self.plot_xmax)
-        # self.ax0.set_xlim(-450, self.xmax)
-
-        self.ax0.set_ylim(self.plot_ymin, self.plot_ymax)
-        # self.ax0.set_ylim(0.0, self.ymax)
-        # self.ax0.clf()
-        # self.aspect_ratio = 1.2
-        # ratio_default=(self.ax0.get_xlim()[1]-self.ax0.get_xlim()[0])/(self.ax0.get_ylim()[1]-self.ax0.get_ylim()[0])
-        # ratio_default = (self.plot_xmax - self.plot_xmin) / (self.plot_ymax - self.plot_ymin)
-        # print("ratio_default = ",ratio_default)
-        # self.ax0.set_aspect(ratio_default * self.aspect_ratio)
-
-        # self.ax0.set_aspect(self.plot_ymin, self.plot_ymax)
+    def plot_cells3D(self, frame):
+        return
