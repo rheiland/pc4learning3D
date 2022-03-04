@@ -1,7 +1,6 @@
 import sys
 import os
 import time
-import random
 import xml.etree.ElementTree as ET  # https://docs.python.org/2/library/xml.etree.elementtree.html
 from pathlib import Path
 # from ipywidgets import Layout, Label, Text, Checkbox, Button, BoundedIntText, HBox, VBox, Box, \
@@ -14,8 +13,7 @@ from pathlib import Path
 # from matplotlib.collections import PatchCollection
 # import matplotlib.colors as mplc
 # from matplotlib import gridspec
-# import vtk
-from vtk import *
+import vtk
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 # from collections import deque
 import glob
@@ -25,7 +23,6 @@ from PyQt5.QtWidgets import QFrame,QApplication,QWidget,QTabWidget,QFormLayout,Q
 
 import numpy as np
 import scipy.io
-from pyMCDS_cells import pyMCDS_cells
 # import matplotlib
 # matplotlib.use('Qt5Agg')
 # import matplotlib.pyplot as plt
@@ -99,9 +96,9 @@ class Vis(QWidget):
 
         # self.output_dir = "/Users/heiland/dev/PhysiCell_V.1.8.0_release/output"
         # self.output_dir = "output"
-        self.output_dir = "../tmpdir"   # for nanoHUB
-        self.output_dir = "tmpdir"   # for nanoHUB
-        # self.output_dir = "."   # for nanoHUB
+        # self.output_dir = "../tmpdir"   # for nanoHUB
+        # self.output_dir = "tmpdir"   # for nanoHUB
+        self.output_dir = "."   # for nanoHUB
 
 
         # do in create_figure()?
@@ -197,61 +194,61 @@ class Vis(QWidget):
         controls_hbox.addLayout(hbox)
 
         #-------------------
-        # controls_hbox2 = QHBoxLayout()
-        # visible_flag = True
+        controls_hbox2 = QHBoxLayout()
+        visible_flag = True
 
-        # label = QLabel("xmin")
-        # label.setFixedWidth(label_width)
-        # label.setAlignment(QtCore.Qt.AlignRight)
-        # controls_hbox2.addWidget(label)
-        # self.my_xmin = QLineEdit()
-        # self.my_xmin.textChanged.connect(self.change_plot_range)
-        # self.my_xmin.setFixedWidth(domain_value_width)
-        # self.my_xmin.setValidator(QtGui.QDoubleValidator())
-        # controls_hbox2.addWidget(self.my_xmin)
-        # self.my_xmin.setVisible(visible_flag)
+        label = QLabel("xmin")
+        label.setFixedWidth(label_width)
+        label.setAlignment(QtCore.Qt.AlignRight)
+        controls_hbox2.addWidget(label)
+        self.my_xmin = QLineEdit()
+        self.my_xmin.textChanged.connect(self.change_plot_range)
+        self.my_xmin.setFixedWidth(domain_value_width)
+        self.my_xmin.setValidator(QtGui.QDoubleValidator())
+        controls_hbox2.addWidget(self.my_xmin)
+        self.my_xmin.setVisible(visible_flag)
 
-        # label = QLabel("xmax")
-        # label.setFixedWidth(label_width)
-        # label.setAlignment(QtCore.Qt.AlignRight)
-        # controls_hbox2.addWidget(label)
-        # self.my_xmax = QLineEdit()
-        # self.my_xmax.textChanged.connect(self.change_plot_range)
-        # self.my_xmax.setFixedWidth(domain_value_width)
-        # self.my_xmax.setValidator(QtGui.QDoubleValidator())
-        # controls_hbox2.addWidget(self.my_xmax)
-        # self.my_xmax.setVisible(visible_flag)
+        label = QLabel("xmax")
+        label.setFixedWidth(label_width)
+        label.setAlignment(QtCore.Qt.AlignRight)
+        controls_hbox2.addWidget(label)
+        self.my_xmax = QLineEdit()
+        self.my_xmax.textChanged.connect(self.change_plot_range)
+        self.my_xmax.setFixedWidth(domain_value_width)
+        self.my_xmax.setValidator(QtGui.QDoubleValidator())
+        controls_hbox2.addWidget(self.my_xmax)
+        self.my_xmax.setVisible(visible_flag)
 
-        # label = QLabel("ymin")
-        # label.setFixedWidth(label_width)
-        # label.setAlignment(QtCore.Qt.AlignRight)
-        # controls_hbox2.addWidget(label)
-        # self.my_ymin = QLineEdit()
-        # self.my_ymin.textChanged.connect(self.change_plot_range)
-        # self.my_ymin.setFixedWidth(domain_value_width)
-        # self.my_ymin.setValidator(QtGui.QDoubleValidator())
-        # controls_hbox2.addWidget(self.my_ymin)
-        # self.my_ymin.setVisible(visible_flag)
+        label = QLabel("ymin")
+        label.setFixedWidth(label_width)
+        label.setAlignment(QtCore.Qt.AlignRight)
+        controls_hbox2.addWidget(label)
+        self.my_ymin = QLineEdit()
+        self.my_ymin.textChanged.connect(self.change_plot_range)
+        self.my_ymin.setFixedWidth(domain_value_width)
+        self.my_ymin.setValidator(QtGui.QDoubleValidator())
+        controls_hbox2.addWidget(self.my_ymin)
+        self.my_ymin.setVisible(visible_flag)
 
-        # label = QLabel("ymax")
-        # label.setFixedWidth(label_width)
-        # label.setAlignment(QtCore.Qt.AlignRight)
-        # controls_hbox2.addWidget(label)
-        # self.my_ymax = QLineEdit()
-        # self.my_ymax.textChanged.connect(self.change_plot_range)
-        # self.my_ymax.setFixedWidth(domain_value_width)
-        # self.my_ymax.setValidator(QtGui.QDoubleValidator())
-        # controls_hbox2.addWidget(self.my_ymax)
-        # self.my_ymax.setVisible(visible_flag)
+        label = QLabel("ymax")
+        label.setFixedWidth(label_width)
+        label.setAlignment(QtCore.Qt.AlignRight)
+        controls_hbox2.addWidget(label)
+        self.my_ymax = QLineEdit()
+        self.my_ymax.textChanged.connect(self.change_plot_range)
+        self.my_ymax.setFixedWidth(domain_value_width)
+        self.my_ymax.setValidator(QtGui.QDoubleValidator())
+        controls_hbox2.addWidget(self.my_ymax)
+        self.my_ymax.setVisible(visible_flag)
 
-        # w = QPushButton("Reset")
-        # w.clicked.connect(self.reset_plot_range)
-        # controls_hbox2.addWidget(w)
+        w = QPushButton("Reset")
+        w.clicked.connect(self.reset_plot_range)
+        controls_hbox2.addWidget(w)
 
-        # self.my_xmin.setText(str(self.xmin))
-        # self.my_xmax.setText(str(self.xmax))
-        # self.my_ymin.setText(str(self.ymin))
-        # self.my_ymax.setText(str(self.ymax))
+        self.my_xmin.setText(str(self.xmin))
+        self.my_xmax.setText(str(self.xmax))
+        self.my_ymin.setText(str(self.ymin))
+        self.my_ymax.setText(str(self.ymax))
 
         #-------------------
         # self.substrates_cbox = QComboBox(self)
@@ -264,7 +261,7 @@ class Vis(QWidget):
 
         controls_vbox = QVBoxLayout()
         controls_vbox.addLayout(controls_hbox)
-        # controls_vbox.addLayout(controls_hbox2)
+        controls_vbox.addLayout(controls_hbox2)
 
         #==================================================================
         self.config_params.setLayout(self.vbox)
@@ -330,7 +327,6 @@ class Vis(QWidget):
         # self.ax0.cla()
         # if self.substrates_checked_flag:
         #     self.plot_substrate(self.current_svg_frame)
-        self.plot_cells3D(self.current_svg_frame)
         # if self.cells_checked_flag:
         #     self.plot_svg(self.current_svg_frame)
 
@@ -622,7 +618,7 @@ class Vis(QWidget):
         # self.setCentralWidget(self.canvas)
         # self.resize(640, 480)
 
-        self.ren = vtkRenderer()
+        self.ren = vtk.vtkRenderer()
         # vtk_widget = QVTKRenderWindowInteractor(rw=render_window)
         # self.vtkWidget = QVTKRenderWindowInteractor(self.ren)
         self.vtkWidget = QVTKRenderWindowInteractor(self.canvas)
@@ -634,16 +630,16 @@ class Vis(QWidget):
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 
         # Create source
-        source = vtkSphereSource()
+        source = vtk.vtkSphereSource()
         source.SetCenter(0, 0, 0)
         source.SetRadius(5.0)
 
         # Create a mapper
-        mapper = vtkPolyDataMapper()
+        mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputConnection(source.GetOutputPort())
 
         # Create an actor
-        actor = vtkActor()
+        actor = vtk.vtkActor()
         actor.SetMapper(mapper)
         self.ren.AddActor(actor)
         self.ren.ResetCamera()
@@ -723,147 +719,4 @@ class Vis(QWidget):
     #------------------------------------------------------------
     # def plot_svg(self, frame, rdel=''):
     def plot_cells3D(self, frame):
-        print("plot_cells3D:  self.output_dir= ",self.output_dir)
-        xml_file = Path(self.output_dir, "output00000000.xml")
-        xml_file = Path(self.output_dir, "output00000000.xml")
-        xml_file = "output00000000.xml"
-        print("plot_cells3D: xml_file = ",xml_file)
-        # mcds = pyMCDS_cells(xml_file, '.')  
-        mcds = pyMCDS_cells(xml_file, 'tmpdir')  
-        print('time=', mcds.get_time())
-
-        print(mcds.data['discrete_cells'].keys())
-
-        ncells = len(mcds.data['discrete_cells']['ID'])
-        print('ncells=', ncells)
-
-        global xyz
-        xyz = np.zeros((ncells, 3))
-        xyz[:, 0] = mcds.data['discrete_cells']['position_x']
-        xyz[:, 1] = mcds.data['discrete_cells']['position_y']
-        xyz[:, 2] = mcds.data['discrete_cells']['position_z']
-        #xyz = xyz[:1000]
-        print("position_x = ",xyz[:,0])
-        xmin = min(xyz[:,0])
-        xmax = max(xyz[:,0])
-        print("xmin = ",xmin)
-        print("xmax = ",xmax)
-
-        ymin = min(xyz[:,1])
-        ymax = max(xyz[:,1])
-        print("ymin = ",ymin)
-        print("ymax = ",ymax)
-
-        zmin = min(xyz[:,2])
-        zmax = max(xyz[:,2])
-        print("zmin = ",zmin)
-        print("zmax = ",zmax)
-
-        cell_type = mcds.data['discrete_cells']['cell_type']
-        print(type(cell_type))
-        print(cell_type)
-        unique_cell_type = np.unique(cell_type)
-        print("\nunique_cell_type = ",unique_cell_type )
-
-        #------------
-        # colors = vtkNamedColors()
-
-        points = vtkPoints()
-        points.InsertNextPoint(0, 0, 0)
-        points.InsertNextPoint(1, 1, 1)
-        points.InsertNextPoint(2, 2, 2)
-        cellID = vtkFloatArray()
-        cellVolume = vtkFloatArray()
-        for idx in range(ncells):
-            x= mcds.data['discrete_cells']['position_x'][idx]
-            y= mcds.data['discrete_cells']['position_y'][idx]
-            z= mcds.data['discrete_cells']['position_z'][idx]
-            id = mcds.data['discrete_cells']['cell_type'][idx]
-            points.InsertNextPoint(x, y, z)
-            # cellVolume.InsertNextValue(30.0)
-            cellID.InsertNextValue(id)
-
-        polydata = vtkPolyData()
-        polydata.SetPoints(points)
-        # polydata.GetPointData().SetScalars(cellVolume)
-        polydata.GetPointData().SetScalars(cellID)
-
-        cellID_color_dict = {}
-        # for idx in range(ncells):
-        random.seed(42)
-        for utype in unique_cell_type:
-            # colors.InsertTuple3(0, randint(0,255), randint(0,255), randint(0,255)) # reddish
-            cellID_color_dict[utype] = [random.randint(0,255), random.randint(0,255), random.randint(0,255)]
-        cellID_color_dict[0.0]=[255,255,0]  # yellow basement membrane
-        print("color dict=",cellID_color_dict)
-
-        colors = vtkUnsignedCharArray()
-        colors.SetNumberOfComponents(3)
-        colors.SetNumberOfTuples(polydata.GetNumberOfPoints())  # ncells
-        for idx in range(ncells):
-        # for idx in range(len(unique_cell_type)):
-            # colors.InsertTuple3(idx, randint(0,255), randint(0,255), randint(0,255)) 
-            # if idx < 5:
-                # print(idx,cellID_color_dict[cell_type[idx]])
-            colors.InsertTuple3(idx, cellID_color_dict[cell_type[idx]][0], cellID_color_dict[cell_type[idx]][1], cellID_color_dict[cell_type[idx]][2])
-
-        polydata.GetPointData().SetScalars(colors)
-
-        sphereSource = vtkSphereSource()
-        nres = 20
-        sphereSource.SetPhiResolution(nres)
-        sphereSource.SetThetaResolution(nres)
-        sphereSource.SetRadius(0.1)
-
-        glyph = vtkGlyph3D()
-        glyph.SetSourceConnection(sphereSource.GetOutputPort())
-        glyph.SetInputData(polydata)
-        glyph.SetColorModeToColorByScalar()
-        # glyph.SetScaleModeToScaleByScalar()
-
-        # using these 2 results in fixed size spheres
-        glyph.SetScaleModeToDataScalingOff()  # results in super tiny spheres without 'ScaleFactor'
-        glyph.SetScaleFactor(170)  # overall (multiplicative) scaling factor
-
-        # glyph.SetScaleModeToDataScalingOn()
-        # glyph.ScalingOn()
-        glyph.Update()
-
-
-        # Visualize
-        mapper = vtkPolyDataMapper()
-        mapper.SetInputConnection(glyph.GetOutputPort())
-
-        actor = vtkActor()
-        actor.SetMapper(mapper)
-        # actor.GetProperty().SetInterpolationToPBR()
-        # actor.GetProperty().SetColor(colors.GetColor3d('Salmon'))
-        print("-- actor defaults:")
-        print("-- diffuse:",actor.GetProperty().GetDiffuse())  # 1.0
-        print("-- specular:",actor.GetProperty().GetSpecular())  # 0.0
-        print("-- roughness:",actor.GetProperty().GetCoatRoughness ())  # 0.0
-        actor.GetProperty().SetDiffuse(0.5)
-        # actor.GetProperty().SetSpecular(0.2)
-        # actor.GetProperty().SetCoatRoughness (0.5)
-        # actor.GetProperty().SetCoatRoughness (0.2)
-        # actor.GetProperty().SetCoatRoughness (1.0)
-
-        # renderer = vtkRenderer()
-        # amval = 1.0  # default
-        # renderer.SetAmbient(amval, amval, amval)
-
-        # renderWindow = vtkRenderWindow()
-        # renderWindow.SetPosition(100,100)
-        # renderWindow.SetSize(1400,1200)
-        # renderWindow.AddRenderer(renderer)
-        # renderWindowInteractor = vtkRenderWindowInteractor()
-        # renderWindowInteractor.SetRenderWindow(renderWindow)
-
-        # renderer.AddActor(actor)
-        self.ren.AddActor(actor)
-        # renderer.SetBackground(colors.GetColor3d('SlateGray'))  # Background Slate Gray
-
-    # renderWindow.SetWindowName('PhysiCell model')
-    # renderWindow.Render()
-    # renderWindowInteractor.Start()
         return
