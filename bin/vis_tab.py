@@ -123,6 +123,7 @@ class Vis(QWidget):
         units_width = 70
 
         self.substrates_cbox = QComboBox(self)
+        self.substrates_cbox.setEnabled(False)
 
         self.myscroll = QScrollArea()  # might contain centralWidget
         self.create_figure()
@@ -186,6 +187,7 @@ class Vis(QWidget):
         self.cells_checked_flag = True
 
         self.substrates_checkbox = QCheckBox('Substrates')
+        self.substrates_checkbox.setEnabled(False)
         self.substrates_checkbox.setChecked(False)
         self.substrates_checkbox.clicked.connect(self.substrates_toggle_cb)
         self.substrates_checked_flag = False
@@ -724,9 +726,10 @@ class Vis(QWidget):
     # def plot_svg(self, frame, rdel=''):
     def plot_cells3D(self, frame):
         print("plot_cells3D:  self.output_dir= ",self.output_dir)
-        xml_file = Path(self.output_dir, "output00000000.xml")
-        xml_file = Path(self.output_dir, "output00000000.xml")
-        xml_file = "output00000000.xml"
+        print("plot_cells3D:  frame= ",frame)
+        # xml_file = Path(self.output_dir, "output00000000.xml")
+        # xml_file = "output00000000.xml"
+        xml_file = "output%08d.xml" % frame
         print("plot_cells3D: xml_file = ",xml_file)
         # mcds = pyMCDS_cells(xml_file, '.')  
         mcds = pyMCDS_cells(xml_file, 'tmpdir')  
@@ -743,11 +746,11 @@ class Vis(QWidget):
         xyz[:, 1] = mcds.data['discrete_cells']['position_y']
         xyz[:, 2] = mcds.data['discrete_cells']['position_z']
         #xyz = xyz[:1000]
-        print("position_x = ",xyz[:,0])
+        # print("position_x = ",xyz[:,0])
         xmin = min(xyz[:,0])
         xmax = max(xyz[:,0])
-        print("xmin = ",xmin)
-        print("xmax = ",xmax)
+        # print("xmin = ",xmin)
+        # print("xmax = ",xmax)
 
         ymin = min(xyz[:,1])
         ymax = max(xyz[:,1])
@@ -760,8 +763,8 @@ class Vis(QWidget):
         print("zmax = ",zmax)
 
         cell_type = mcds.data['discrete_cells']['cell_type']
-        print(type(cell_type))
-        print(cell_type)
+        # print(type(cell_type))
+        # print(cell_type)
         unique_cell_type = np.unique(cell_type)
         print("\nunique_cell_type = ",unique_cell_type )
 
@@ -769,9 +772,9 @@ class Vis(QWidget):
         # colors = vtkNamedColors()
 
         points = vtkPoints()
-        points.InsertNextPoint(0, 0, 0)
-        points.InsertNextPoint(1, 1, 1)
-        points.InsertNextPoint(2, 2, 2)
+        # points.InsertNextPoint(0, 0, 0)
+        # points.InsertNextPoint(1, 1, 1)
+        # points.InsertNextPoint(2, 2, 2)
         cellID = vtkFloatArray()
         cellVolume = vtkFloatArray()
         for idx in range(ncells):
@@ -842,8 +845,9 @@ class Vis(QWidget):
         print("-- diffuse:",actor.GetProperty().GetDiffuse())  # 1.0
         print("-- specular:",actor.GetProperty().GetSpecular())  # 0.0
         print("-- roughness:",actor.GetProperty().GetCoatRoughness ())  # 0.0
+        actor.GetProperty().SetAmbient(0.3)
         actor.GetProperty().SetDiffuse(0.5)
-        # actor.GetProperty().SetSpecular(0.2)
+        actor.GetProperty().SetSpecular(0.2)
         # actor.GetProperty().SetCoatRoughness (0.5)
         # actor.GetProperty().SetCoatRoughness (0.2)
         # actor.GetProperty().SetCoatRoughness (1.0)
